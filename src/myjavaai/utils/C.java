@@ -58,4 +58,5 @@ public class C {
 
     public static final String CLOAKY_BOT_FACTORY = "factorycloak";
     public static final String AIRPLANE_PLANT = "factoryplane";
+    public static final String LOTUS = "corllt";
 }

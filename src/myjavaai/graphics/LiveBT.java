@@ -5,61 +5,73 @@ import bt.Task;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
  * Created by Hallvard on 26.11.2015.
  */
-public class LiveBT extends JComponent {
+public class LiveBT extends JPanel {
 
     static JFrame window;
     static LiveBT live;
+    static Dimension dim = new Dimension(100,100);
 
+    private final int MARGIN = 10;
     private HashMap<Task, TaskRep> nodes = new HashMap<>();
-    private BehaviourTree behaviourTree;
 
     public LiveBT(BehaviourTree bt) {
-        this.behaviourTree = bt;
+        Task root = bt.getChild(0);
+        generate(root, null, 0);
 
-        Task root = behaviourTree.getChild(0);
-        generate(root);
+        //Cosmetics: centering of the tree and window fitting
+        int maxX = 0, maxY = 0, maxO = Arrays.stream(rows).max().getAsInt();
+        for(TaskRep n : nodes.values()) {
+            maxX = n.X > maxX ? n.X : maxX;
+            maxY = n.Y > maxY ? n.Y : maxY;
+            n.offset(calcOffset(n.ROW, rows[n.DEPTH], maxO)+MARGIN, MARGIN); //todo find highest
+        }
+        dim = new Dimension(maxX+TaskRep.WIDTH+TaskRep.MARGIN.width, maxY+TaskRep.HEIGHT+TaskRep.MARGIN.height+30+MARGIN);
     }
 
-    private void update() {
-        nodes.values().forEach(TaskRep::update);
+    private int calcOffset(int pos, int rows, int max) {
+        if(max == rows) return 0;
+        int off = (max-rows)*(TaskRep.WIDTH+TaskRep.MARGIN.width)/(rows-pos)/2;
+        return off;
     }
 
-    private void generate(Task task){
-        nodes.put(task, new TaskRep(task));
+    public int[] rows = new int[20];
+
+    private void generate(Task task, TaskRep parent, int depth){
+        TaskRep rep = new TaskRep(task, parent, depth, rows[depth]++);
+        nodes.put(task, rep);
 
         final int chldrn = task.getChildCount();
         if(chldrn==0)    return;
 
         for(int i=0; i<chldrn; i++) {
-            generate(task.getChild(i));
+            generate(task.getChild(i), rep, depth+1);
         }
     }
 
     @Override
-    public void paint(Graphics g) {
-        // Painting smoother graphics with Anti-aliasing
-        ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        nodes.values().forEach(c -> this.add(c));
-
+    public void paint(Graphics g0) {
+        super.paintComponent(g0);
+        final Graphics2D g = (Graphics2D)g0.create();
+        // Painting the graphics with Anti-aliasing
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        try {
+            nodes.values().forEach(c -> c.paintComponent(g));
+        } finally {
+            g.dispose();
+        }
     }
-
-    private void paintTree(Graphics g, int depth, int width) {
-
-    }
-
 
     public static void startTransmission(BehaviourTree bt) {
         live = new LiveBT(bt);
         window = new JFrame();
-
-//        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setBounds(30, 30, 300, 300);
+//      window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setBounds(20, 20, dim.width, dim.height);
         window.getContentPane().add(live);
         window.setVisible(true);
     }
@@ -67,6 +79,6 @@ public class LiveBT extends JComponent {
     public static void draw() {
         if(null == live)
             return;
-        live.update();
+        live.repaint();
     }
 }

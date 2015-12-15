@@ -18,32 +18,44 @@ import myjavaai.utils.UnitListener;
  */
 public class Build_SolarPanel extends Action<MyJavaAI> {
 
+    private Boolean res = (null);
+
    @Override
-   public void run() {
+   public void start() {
        MyJavaAI bb = getBlackboard();
 
        bb.debug("Build_SolarPanel.run() called");
 
 
        UnitDef def = bb.unitDefs.get(C.SOLAR_COLLECTOR);
-       AIFloat3 place = bb.callback.getMap().findClosestBuildSite(def, bb.commander.getPos(), 10, (short)0, Integer.MAX_VALUE);
 
-       bb.commander.build(def, place, 0, (short)0, Integer.MAX_VALUE);
+       bb.build(bb.commander, C.SOLAR_COLLECTOR, 10);
 
        bb.addListener(new UnitListener<BaseTask>(new BaseTask(bb.commander, def)) {
            @Override
            public void unitDestroyed() {
-               fail();
+               res = false;
+               bb.removeListener(this);
            }
            @Override
            public void TaskCompleted() {
-                success();
+               res = true;
+               bb.removeListener(this);
            }
            @Override
            public void TaskInterrupted() {
-                fail();
+               res = false;
+               bb.removeListener(this);
            }
        });
+   }
+
+   @Override
+   public TaskState execute() {
+       if(null == res)
+           return TaskState.RUNNING;
+       getBlackboard().debug("Build_SolarPanel ended");
+       return res ? TaskState.SUCCEEDED : TaskState.FAILED;
    }
 
 

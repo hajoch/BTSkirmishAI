@@ -10,7 +10,15 @@
     <orderEntry type="library" exported="" name="AIInterface" level="project" />
     <orderEntry type="library" exported="" name="vecmath" level="project" />
     <orderEntry type="library" exported="" name="JavaOO-AIWrapper" level="project" />
-    <orderEntry type="library" exported="" name="BT" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../BehaviourTree/out/artifacts/BT_jar/BT.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

@@ -9,7 +9,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * Created by Hallvard on 26.11.2015.
  */
-public class TaskRep extends JPanel {
+public class TaskRep {
     public enum Type {
         DECORATOR,
         COMPOSITE,
@@ -17,17 +17,32 @@ public class TaskRep extends JPanel {
         OTHER
     }
 
-    public final int WIDTH = 20;
-    public final int HEIGHT = 10;
-    public final int TEXT_MARGIN = 5;
+    public final static Dimension MARGIN = new Dimension(50, 30);
+    public final static int TEXT_MARGIN = 10;
+    public final static int WIDTH = 50;
+    public final static int HEIGHT = 30;
 
+    public final int DEPTH;
+    public final int ROW;
+
+    public int X;
+    public int Y;
+
+    private final TaskRep parent;
     private final Task task;
-    private Task.TaskState state = Task.TaskState.NEUTRAL;
     private final Type type;
 
-    public TaskRep(Task task) {
+    private Task.TaskState state = Task.TaskState.NEUTRAL;
+
+    public TaskRep(Task task, TaskRep parent, int depth, int row) {
+        this.DEPTH = depth;
+        this.ROW = row;
         this.task = task;
-        this.state = task.taskState;
+        this.parent = parent;
+
+        X = ROW*(WIDTH+MARGIN.width);
+        Y = DEPTH*(HEIGHT+TEXT_MARGIN+MARGIN.height);
+        state = task.taskState;
 
         if      (task instanceof Decorator)
             type = Type.DECORATOR;
@@ -39,37 +54,38 @@ public class TaskRep extends JPanel {
             type = Type.OTHER;
     }
 
-    public void update() {
-        if(task.taskState == state) {
-            return;
-        }
-        repaint();
+    public void offset(int x, int y) {
+        X += x;
+        Y += y;
     }
 
-    @Override
     protected void paintComponent(Graphics g) {
-        ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        super.paintComponent(g);
+        state = task.taskState;
 
         g.setColor(Color.BLACK);
-        g.drawString(task.getClass().getSimpleName(), 0, HEIGHT+TEXT_MARGIN);
+        g.drawString(task.getClass().getSimpleName(), X, Y+HEIGHT+TEXT_MARGIN);
+
+        if(state == Task.TaskState.RUNNING)
+            g.setColor(Color.RED);
+        if(null != parent)
+            g.drawLine(parent.X+WIDTH/2, parent.Y+HEIGHT+TEXT_MARGIN+5, X+WIDTH/2, Y);
 
         g.setColor(state.color);
         switch (type) {
             case DECORATOR: {
-                g.fillPolygon(new int[]{0, WIDTH / 2, WIDTH, WIDTH / 2}, new int[]{HEIGHT / 2, 0, HEIGHT / 2, HEIGHT}, 4);
+                g.fillPolygon(new int[]{X, X +WIDTH / 2, X + WIDTH, X + WIDTH / 2}, new int[]{Y + HEIGHT / 2, Y , Y+ HEIGHT / 2, Y+ HEIGHT}, 4);
                 break;
             }
             case COMPOSITE: {
-                g.fillOval(0, 0, WIDTH, HEIGHT);
+                g.fillOval(X, Y, WIDTH, HEIGHT);
                 break;
             }
             case LEAF: {
-                g.fillRect(0,0,WIDTH, HEIGHT);
+                g.fillRect(X,Y,WIDTH, HEIGHT);
                 break;
             }
             case OTHER:
-                g.fillPolygon(new int[]{WIDTH/4,WIDTH/2,WIDTH/4,WIDTH/2}, new int[]{HEIGHT/2, 0, HEIGHT/2, HEIGHT}, 4);
+                g.fillPolygon(new int[]{X+ WIDTH/4,X+ WIDTH/2,X+ WIDTH/4,X+ WIDTH/2}, new int[]{Y+ HEIGHT/2, Y, Y+ HEIGHT/2, Y+ HEIGHT}, 4);
         }
     }
 }

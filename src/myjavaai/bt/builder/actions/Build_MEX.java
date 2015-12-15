@@ -19,38 +19,49 @@ import myjavaai.utils.UnitListener;
  */
 public class Build_MEX extends Action<MyJavaAI> {
 
-    @Override
-    public void run(){
-        MyJavaAI bb = getBlackboard();
+    private Boolean res = null;
 
+    @Override
+    public void start() {
+        MyJavaAI bb = getBlackboard();
         bb.debug("Build_MEX.run() called");
 
         UnitDef def = bb.unitDefs.get(C.METAL_EXTRACTOR);
         AIFloat3 place = bb.callback.getMap().getResourceMapSpotsNearest(bb.callback.getResourceByName("Metal"), bb.commander.getPos());
 
-        bb.commander.build(def, bb.callback.getMap().findClosestBuildSite(def, place, 5, (short)0, Integer.MAX_VALUE), 0, (short)0, Integer.MAX_VALUE);
+        bb.commander.build(def, bb.callback.getMap().findClosestBuildSite(def, place, 10000, (short)0, Integer.MAX_VALUE), 0, (short)0, Integer.MAX_VALUE);
 
         bb.addListener(new UnitListener<BaseTask>(new BaseTask(bb.commander, def)) {
             @Override
             public void unitDestroyed() {
-                fail();
+                res = false;
                 bb.debug("Failed");
                 bb.removeListener(this);
                 //TODO repercussions?
             }
             @Override
             public void TaskCompleted() {
-                success();
+                res = true;
                 bb.debug("Succeeded");
                 bb.removeListener(this);
             }
             @Override
             public void TaskInterrupted() {
-                fail();
+                res = false;
                 bb.debug("Interrupted");
                 bb.removeListener(this);
             }
         });
+
+    }
+
+    @Override
+    public TaskState execute(){
+        if(null == res)
+            return TaskState.RUNNING;
+        getBlackboard().debug("Build_MEX ended");
+        return res ? TaskState.SUCCEEDED : TaskState.FAILED;
+
         //TODO handle death. How should the behaviour tree handle this?
     }
 

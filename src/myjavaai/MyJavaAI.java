@@ -16,6 +16,7 @@ import myjavaai.bt.builder.actions.Build_MEX;
 import myjavaai.bt.builder.actions.Build_SolarPanel;
 import myjavaai.construction.ConstructionManager;
 import myjavaai.economy.EconomyManager;
+import myjavaai.graphics.LiveBT;
 import myjavaai.utils.BaseTask;
 import myjavaai.utils.C;
 import myjavaai.utils.UnitListener;
@@ -49,17 +50,18 @@ public class MyJavaAI extends AbstractOOAI{
             add(new EconomyManager());
             add(new ConstructionManager());
         }};
-        listeners = new ArrayList<>();
-/*
+        listeners = new ArrayList<UnitListener<BaseTask>>();
+
         bt = new BehaviourTree<MyJavaAI>(
                 new UntilFail<MyJavaAI>(
                         new Sequence<MyJavaAI>(
                                 new Build_MEX(),
-                                new Build_SolarPanel()
+                                new Build_SolarPanel(),
+                                new Build_Lotus()
                         )
                 )
         , this);
-*/
+
         /*
         runBT = () -> {
             BehaviourTree<MyJavaAI> bt = new BehaviourTree<>(
@@ -90,61 +92,53 @@ public class MyJavaAI extends AbstractOOAI{
         m = callback.getResourceByName("Metal");
         e = callback.getResourceByName("Energy");
 
+        LiveBT.startTransmission(bt);
+
         return 0;
     }
 
     @Override
     public int unitFinished(Unit unit){
 
-        callback.getGame().sendTextMessage("Unit created: Test", 0);
-
         UnitListener<BaseTask> ul = getRelevantListenerDef(unit.getDef());
-        if(ul.getFocal().isPresent()) {
-            ul.TaskCompleted();
-        }
+        if (null != ul)
+            if(ul.getFocal().isPresent()) {
+                ul.TaskCompleted();
+            }
 
         if(unit.getDef().getName().equals(C.STRIKE_COMMANDER)) {
             commander = unit;
-            debug("Test");
-
-            /*
-            Thread btThread = new Thread(runBT);
-            btThread.start();
-            */
         }
-/*
+
         if(unit.getDef().getName().equals(C.CLOAKY_BOT_FACTORY)) {
             unit.setRepeat(true, (short) 0, Integer.MAX_VALUE);
             build(unit, C.CONJURER, 0);
+            /*build(unit, C.GLAIVE, 0);
             build(unit, C.GLAIVE, 0);
             build(unit, C.GLAIVE, 0);
-            build(unit, C.GLAIVE, 0);
             build(unit, C.WARRIOR, 0);
             build(unit, C.WARRIOR, 0);
             build(unit, C.WARRIOR, 0);
             build(unit, C.GLAIVE, 0);
             build(unit, C.WARRIOR, 0);
-            build(unit, C.WARRIOR, 0);
+            build(unit, C.WARRIOR, 0);*/
         }
-        */
 /*
         if(unit.getDef().getName().equals(C.WARRIOR) || unit.getDef().getName().equals(C.GLAIVE)) {
             List<AIFloat3> l = callback.getMap().getResourceMapSpotsPositions(m);
             AIFloat3 rand = l.get(new Random().nextInt(l.size()));
             unit.patrolTo(rand, (short)0, Integer.MAX_VALUE);
         }
-
+*/
         if(unit.getDef().getName().equals(C.CONJURER)) {
             List<AIFloat3> l = callback.getMap().getResourceMapSpotsPositions(m);
             AIFloat3 rand = l.get(new Random().nextInt(l.size()));
-            AIFloat3 rand2 = l.get(new Random().nextInt(l.size()));
-            unit.build(unitDefs.get(C.METAL_EXTRACTOR), callback.getMap().findClosestBuildSite(unitDefs.get(C.METAL_EXTRACTOR), rand, 5, (short) 0, Integer.MAX_VALUE), 0 ,(short) 0, Integer.MAX_VALUE);
+            unit.build(unitDefs.get(C.METAL_EXTRACTOR), callback.getMap().findClosestBuildSite(unitDefs.get(C.METAL_EXTRACTOR), rand, 1000, (short) 0, Integer.MAX_VALUE), 0 ,(short) 0, Integer.MAX_VALUE);
          //   build(unit, C.SOLAR_COLLECTOR, 10);
-            unit.build(unitDefs.get(C.METAL_EXTRACTOR), callback.getMap().findClosestBuildSite(unitDefs.get(C.METAL_EXTRACTOR), rand2, 5, (short) 0, Integer.MAX_VALUE), 0, (short) 0, Integer.MAX_VALUE);
             //  build(unit, C.SOLAR_COLLECTOR, 10);
          //   build(unit, C.SOLAR_COLLECTOR, 10);
         }
-*/
+
         return 0; // OK
     }
 
@@ -174,24 +168,29 @@ public class MyJavaAI extends AbstractOOAI{
 
     @Override
     public int update(int frame) {
-/*
+
         if(null != commander)
-            if(frame % 10 == 0)
+            if(frame % 10 == 0 && frame > 50) {
                 bt.step();
-*/
+                LiveBT.draw();
+            }
+
 
     //    managers.forEach(h -> h.update(frame));
 /*
         if(frame == 100) {
             build(commander, C.CLOAKY_BOT_FACTORY, 50);
         }
+        */
+/*
         if(frame == 400) {
             build(commander, C.SOLAR_COLLECTOR, 20);
             build(commander, C.SOLAR_COLLECTOR, 20);
             build(commander, C.SOLAR_COLLECTOR, 20);
             build(commander, C.BIG_BERTHA, 20);
         }
-        if(frame == 1000) {
+*
+/*        if(frame == 1000) {
             List<AIFloat3> l = callback.getMap().getResourceMapSpotsPositions(m);
             AIFloat3 rand = l.get(new Random().nextInt(l.size()));
             commander.build(unitDefs.get(C.METAL_EXTRACTOR), callback.getMap().findClosestBuildSite(unitDefs.get(C.METAL_EXTRACTOR), rand, 5, (short) 0, Integer.MAX_VALUE), 0, (short) 0, Integer.MAX_VALUE);
@@ -227,11 +226,11 @@ public class MyJavaAI extends AbstractOOAI{
     }
 
 
-    private void build(Unit builder, String uniqueName, int radius) {
+    public void build(Unit builder, String uniqueName, int radius) {
         builder.build(unitDefs.get(uniqueName), callback.getMap().findClosestBuildSite(unitDefs.get(uniqueName), builder.getPos(), 1000, (short) radius, Integer.MAX_VALUE), 0 ,(short) 0, Integer.MAX_VALUE);
     }
 
-    public void addListener(UnitListener listener) {
+    public void addListener(UnitListener<BaseTask> listener) {
         listeners.add(listener);
     }
     public boolean removeListener(UnitListener listener) {
@@ -239,6 +238,8 @@ public class MyJavaAI extends AbstractOOAI{
     }
 
     public void debug(String s) {
+        if(null == callback)
+            return;
         callback.getGame().sendTextMessage(s, 0);
     }
 
