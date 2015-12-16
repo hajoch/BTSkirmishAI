@@ -36,7 +36,12 @@ public class LiveBT extends JPanel {
 
     private int calcOffset(int pos, int rows, int max) {
         if(max == rows) return 0;
-        int off = (max-rows)*(TaskRep.WIDTH+TaskRep.MARGIN.width)/(rows-pos)/2;
+
+        int w = TaskRep.WIDTH;
+        int mw = TaskRep.MARGIN.width;
+
+        int off = (((max*(w+mw))-(rows*(w+mw)))/(rows+1))*(pos+1);//-(pos == 0 ? 0 : mw);
+        //int off = (max-rows)*(TaskRep.WIDTH+TaskRep.MARGIN.width)/(rows-pos)/2;
         return off;
     }
 

@@ -3,6 +3,8 @@ package myjavaai;
 import bt.BehaviourTree;
 import bt.Task;
 import bt.composite.Sequence;
+import bt.decorator.Failer;
+import bt.decorator.Succeeder;
 import bt.decorator.UntilFail;
 import bt.leaf.Action;
 import com.springrts.ai.oo.AIFloat3;
@@ -55,9 +57,29 @@ public class MyJavaAI extends AbstractOOAI{
         bt = new BehaviourTree<MyJavaAI>(
                 new UntilFail<MyJavaAI>(
                         new Sequence<MyJavaAI>(
-                                new Build_MEX(),
-                                new Build_SolarPanel(),
-                                new Build_Lotus()
+                                new Sequence<MyJavaAI>(
+                                        new Sequence<MyJavaAI>(
+                                                new Build_MEX(),
+                                                new Build_SolarPanel(),
+                                                new Build_Lotus()
+                                        ),
+                                        new Sequence<MyJavaAI>(
+                                                new Build_MEX(),
+                                                new Build_SolarPanel(),
+                                                new Build_SolarPanel()
+                                        ),
+                                        new Sequence<MyJavaAI>(
+                                                new Build_MEX(),
+                                                new Build_SolarPanel(),
+                                                new Build_Lotus()
+                                        )
+                                ),
+                                new Succeeder<MyJavaAI>(
+                                        new Failer<MyJavaAI>(
+                                                new Build_MEX()
+                                        )
+                                )
+
                         )
                 )
         , this);
