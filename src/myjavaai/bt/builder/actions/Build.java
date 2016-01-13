@@ -1,7 +1,9 @@
 package myjavaai.bt.builder.actions;
 
+import bt.Task;
 import bt.leaf.Action;
 import com.springrts.ai.oo.AIFloat3;
+import com.springrts.ai.oo.clb.Unit;
 import com.springrts.ai.oo.clb.UnitDef;
 import ec.EvolutionState;
 import ec.Problem;
@@ -13,51 +15,72 @@ import myjavaai.utils.BaseTask;
 import myjavaai.utils.C;
 import myjavaai.utils.UnitListener;
 
-/**
- * Created by Hallvard on 03.12.2015.
- */
-public class Build_Lotus extends Action<MyJavaAI>{
+import java.util.Optional;
 
-    private Boolean res = (null);
+/**
+ * Created by Hallvard on 12.01.2016.
+ */
+public abstract class Build extends Action<MyJavaAI> {
+    private Boolean res = null;
+
+    protected abstract String defConstant();
+    protected abstract Optional<AIFloat3> buildSpot();
+    protected abstract Unit getBuilder();
 
     @Override
     public void start() {
         MyJavaAI bb = getBlackboard();
-        bb.debug("Build_LOTUS.run() called");
-        UnitDef def = bb.unitDefs.get(C.LOTUS);
 
-        bb.build(bb.commander, C.LOTUS, 10);
+        bb.debug("Build_X.start() called");
 
-        bb.addListener(new UnitListener<BaseTask>(new BaseTask(bb.commander, def)) {
+        Unit builder = getBuilder();
+        UnitDef def = bb.unitDefs.get(defConstant());
+
+
+        if(buildSpot().isPresent()) {
+            builder.build(def, buildSpot().get(), 0, (short)0, Integer.MAX_VALUE);
+        } else {
+            bb.build(builder, defConstant(), 10);
+        }
+
+        bb.addListener(new UnitListener<BaseTask>(new BaseTask(builder, def)) {
             @Override
             public void unitDestroyed() {
                 res = false;
+                bb.debug("Failed");
                 bb.removeListener(this);
+                //TODO repercussions?
             }
             @Override
             public void TaskCompleted() {
                 res = true;
+                bb.debug("Succeeded");
                 bb.removeListener(this);
             }
             @Override
             public void TaskInterrupted() {
                 res = false;
+                bb.debug("Interrupted");
                 bb.removeListener(this);
             }
         });
+
     }
+
+
     @Override
-    public TaskState execute() {
+    public Task.TaskState execute(){
         if(null == res)
-            return TaskState.RUNNING;
-        getBlackboard().debug("Build_Lotus ended");
-        return res ? TaskState.SUCCEEDED : TaskState.FAILED;
+            return Task.TaskState.RUNNING;
+        return res ? Task.TaskState.SUCCEEDED : Task.TaskState.FAILED;
+
+        //TODO handle death. How should the behaviour tree handle this?
     }
 
 
     @Override
     public String toString() {
-        return "";
+        return this.getClass().getName();
     }
 
     @Override

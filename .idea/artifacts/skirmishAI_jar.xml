@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="skirmishAI:jar">
+  <artifact type="jar" build-on-make="true" name="skirmishAI:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/springSkirmishAI</output-path>
     <root id="archive" name="springSkirmishAI.jar">
       <element id="module-output" name="springSkirmishAI" />

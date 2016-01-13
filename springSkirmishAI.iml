@@ -13,7 +13,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../BehaviourTree/out/artifacts/BT_jar/BT.jar!/" />
+          <root url="jar://$MODULE_DIR$/../BehaviourTreeECJ/out/artifacts/BT_jar/BT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -21,4 +21,3 @@
     </orderEntry>
   </component>
 </module>
-

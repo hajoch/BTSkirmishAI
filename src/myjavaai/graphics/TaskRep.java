@@ -5,6 +5,7 @@ import bt.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.concurrent.locks.Condition;
 
 /**
  * Created by Hallvard on 26.11.2015.
@@ -14,6 +15,7 @@ public class TaskRep {
         DECORATOR,
         COMPOSITE,
         LEAF,
+        CONDITION,
         OTHER
     }
 
@@ -48,6 +50,8 @@ public class TaskRep {
             type = Type.DECORATOR;
         else if (task instanceof bt.Composite)
             type = Type.COMPOSITE;
+        else if(task instanceof Condition)
+            type = Type.CONDITION;
         else if (task instanceof Leaf)
             type = Type.LEAF;
         else
@@ -81,8 +85,11 @@ public class TaskRep {
                 break;
             }
             case LEAF: {
-                g.fillRect(X,Y,WIDTH, HEIGHT);
+                g.fillRoundRect(X,Y,WIDTH, HEIGHT, HEIGHT/4, WIDTH/4);
                 break;
+            }
+            case CONDITION: { // TODO FIX
+                g.fillRect(X,Y, WIDTH, HEIGHT);
             }
             case OTHER:
                 g.fillPolygon(new int[]{X+ WIDTH/4,X+ WIDTH/2,X+ WIDTH/4,X+ WIDTH/2}, new int[]{Y+ HEIGHT/2, Y, Y+ HEIGHT/2, Y+ HEIGHT}, 4);

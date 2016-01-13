@@ -14,6 +14,8 @@ import myjavaai.utils.C;
 import myjavaai.MyJavaAI;
 import myjavaai.utils.UnitListener;
 
+import java.util.List;
+
 /**
  * Created by Hallvard on 26.11.2015.
  */
@@ -27,7 +29,12 @@ public class Build_MEX extends Action<MyJavaAI> {
         bb.debug("Build_MEX.run() called");
 
         UnitDef def = bb.unitDefs.get(C.METAL_EXTRACTOR);
-        AIFloat3 place = bb.callback.getMap().getResourceMapSpotsNearest(bb.callback.getResourceByName("Metal"), bb.commander.getPos());
+        AIFloat3 place = getNextSpot();
+
+        if(place==null){
+            res = false;
+            return;
+        }
 
         bb.commander.build(def, bb.callback.getMap().findClosestBuildSite(def, place, 10000, (short)0, Integer.MAX_VALUE), 0, (short)0, Integer.MAX_VALUE);
 
@@ -53,6 +60,29 @@ public class Build_MEX extends Action<MyJavaAI> {
             }
         });
 
+    }
+
+    private AIFloat3 getNextSpot() {
+        MyJavaAI bb = getBlackboard();
+        List<AIFloat3> list = bb.metalDetectors;
+        AIFloat3 closest = null;
+        float dist = Integer.MAX_VALUE;
+        for(AIFloat3 f : list) {
+            float temp = calculateDistance(f, bb.commander.getPos());
+            if(temp < dist) {
+                dist = temp;
+                closest = f;
+            }
+        }
+        bb.metalDetectors.remove(closest);
+        return closest;
+    }
+    public float calculateDistance(AIFloat3 a, AIFloat3 b) {
+        float xDist = a.x - b.x;
+        float yDist = a.y - b.y;
+        float zDist = a.z - b.z;
+        float totDistSqrd = xDist*xDist + yDist*yDist + zDist*zDist;
+        return totDistSqrd;
     }
 
     @Override
