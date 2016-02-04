@@ -28,6 +28,7 @@ public class Build_Lotus extends Action<MyJavaAI>{
 
         bb.build(bb.commander, C.LOTUS, 10);
 
+
         bb.addListener(new UnitListener<BaseTask>(new BaseTask(bb.commander, def)) {
             @Override
             public void unitDestroyed() {
@@ -52,12 +53,6 @@ public class Build_Lotus extends Action<MyJavaAI>{
             return TaskState.RUNNING;
         getBlackboard().debug("Build_Lotus ended");
         return res ? TaskState.SUCCEEDED : TaskState.FAILED;
-    }
-
-
-    @Override
-    public String toString() {
-        return "";
     }
 
     @Override

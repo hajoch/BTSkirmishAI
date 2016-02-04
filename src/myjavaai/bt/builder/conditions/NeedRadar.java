@@ -12,8 +12,4 @@ public class NeedRadar extends Condition<MyJavaAI> {
         return Math.random() > 0.8;
     }
 
-    @Override
-    public String toString() {
-        return null;
-    }
 }

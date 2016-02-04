@@ -1,24 +1,27 @@
 package myjavaai;
 
 import bt.BehaviourTree;
-import bt.composite.Sequence;
-import bt.decorator.UntilFail;
+import bt.Leaf;
+import bt.Task;
+import bt.utils.TreeInterpreter;
+import bt.utils.graphics.LiveBT;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.AbstractOOAI;
 import com.springrts.ai.oo.clb.OOAICallback;
 import com.springrts.ai.oo.clb.Resource;
 import com.springrts.ai.oo.clb.Unit;
 import com.springrts.ai.oo.clb.UnitDef;
-import myjavaai.bt.builder.actions.*;
+import myjavaai.bt.builder.conditions.NeedEnergy;
+import myjavaai.bt.test.Right;
 import myjavaai.construction.ConstructionManager;
 import myjavaai.economy.EconomyManager;
-import myjavaai.graphics.LiveBT;
 import myjavaai.utils.BaseTask;
 import myjavaai.utils.UnitListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Created by Hallvard on 16.11.2015.
@@ -38,6 +41,8 @@ public class MyJavaAI extends AbstractOOAI{
     Resource e;
 
     BehaviourTree<MyJavaAI> bt;
+    ScheduledExecutorService executor;
+    Runnable btTask;
 
     {
         managers = new ArrayList<Manager>() {{
@@ -46,7 +51,14 @@ public class MyJavaAI extends AbstractOOAI{
         }};
         listeners = new ArrayList<>();
 
-        bt = TempTree.fullBuilder(this);
+        executor = Executors.newScheduledThreadPool(1);
+
+        bt = TempTree.test2(this);
+
+        btTask = ()-> {
+            bt.step();
+            LiveBT.draw();
+        };
 
     }
 
@@ -66,7 +78,6 @@ public class MyJavaAI extends AbstractOOAI{
         metalDetectors = callback.getMap().getResourceMapSpotsPositions(m);
 
         LiveBT.startTransmission(bt);
-        debug("Test start YEHAAAH!");
 
         return 0; // status OK
     }
@@ -82,7 +93,7 @@ public class MyJavaAI extends AbstractOOAI{
 
         if(null == commander) {
             commander = unit;
-            debug("Commander created: YEAGGGHHH");
+            executor.scheduleWithFixedDelay(btTask, 100, 1000, TimeUnit.MILLISECONDS);
         }
 /*
         if(unit.getDef().getName().equals(C.CLOAKY_BOT_FACTORY)) {
@@ -135,35 +146,12 @@ public class MyJavaAI extends AbstractOOAI{
 
         if(null != commander) {
             if (frame % 10 == 0 && frame > 50) {
-                bt.step();
-                LiveBT.draw();
+//                bt.step();
+  //              LiveBT.draw();
             }
         }
 
-
     //    managers.forEach(h -> h.update(frame));
-/*
-        if(frame == 100) {
-            debug("Test");
-            build(commander, C.CLOAKY_BOT_FACTORY, 50);
-        }
-
-
-        if(frame == 400) {
-            build(commander, C.SOLAR_COLLECTOR, 20);
-            build(commander, C.SOLAR_COLLECTOR, 20);
-            build(commander, C.SOLAR_COLLECTOR, 20);
-            build(commander, C.BIG_BERTHA, 20);
-        }
-
-        if(frame == 1000) {
-            List<AIFloat3> l = callback.getMap().getResourceMapSpotsPositions(m);
-            AIFloat3 rand = l.get(new Random().nextInt(l.size()));
-            commander.build(unitDefs.get(C.METAL_EXTRACTOR), callback.getMap().findClosestBuildSite(unitDefs.get(C.METAL_EXTRACTOR), rand, 5, (short) 0, Integer.MAX_VALUE), 0, (short) 0, Integer.MAX_VALUE);
-        } if(frame == 2000) {
-            build(commander, C.BIG_BERTHA, 20);
-        }
-*/
 
         return 0;
     }

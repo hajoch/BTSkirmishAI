@@ -18,7 +18,7 @@ public class Build_Radar extends Build {
 
     @Override
     protected Optional<AIFloat3> buildSpot() {
-        return null;
+        return Optional.empty();
     }
 
     @Override

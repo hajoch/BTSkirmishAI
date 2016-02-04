@@ -3,8 +3,10 @@ package myjavaai;
 import bt.BehaviourTree;
 import bt.composite.Selector;
 import bt.composite.Sequence;
+import bt.decorator.Failer;
 import bt.decorator.Succeeder;
 import bt.decorator.UntilFail;
+import bt.decorator.UntilSucceed;
 import myjavaai.bt.builder.actions.*;
 import myjavaai.bt.builder.conditions.*;
 
@@ -53,6 +55,24 @@ public class TempTree {
         return bt;
     }
 
+    public static BehaviourTree<MyJavaAI> test2(MyJavaAI bb) {
+        bt = new BehaviourTree<MyJavaAI>(
+            new Selector<>(
+                    new UntilFail<>(
+                            new Succeeder<>(
+                                    new Build_SolarPanel()
+                            )
+                    ),
+                    new UntilSucceed<>(
+                            new Failer<>(
+                                    new Build_Lotus()
+                            )
+                    )
+            )
+        , bb);
+        return bt;
+    }
+
     public static BehaviourTree<MyJavaAI> energyTree(MyJavaAI bb) {
         bt = new BehaviourTree<MyJavaAI>(
                 new Sequence<>(
@@ -79,7 +99,7 @@ public class TempTree {
     public static BehaviourTree<MyJavaAI> fullBuilder(MyJavaAI bb) {
         bt = new BehaviourTree<MyJavaAI>(
                 new Sequence<>(
-                        new Build_CloakyBotFactory(),
+                        new Build_SolarPanel(),
                         new UntilFail<>(
                                 new Sequence<>(
                                         new Sequence<>(

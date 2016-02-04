@@ -15,8 +15,4 @@ public class NeedEnergy extends Condition<MyJavaAI> {
         return (bb.callback.getEconomy().getPull(e) < -10f) || (bb.callback.getEconomy().getCurrent(e) < 50);
     }
 
-    @Override
-    public String toString() {
-        return null;
-    }
 }

@@ -26,7 +26,6 @@ public class Build_SolarPanel extends Action<MyJavaAI> {
 
        bb.debug("Build_SolarPanel.run() called");
 
-
        UnitDef def = bb.unitDefs.get(C.SOLAR_COLLECTOR);
 
        bb.build(bb.commander, C.SOLAR_COLLECTOR, 10);
@@ -58,14 +57,14 @@ public class Build_SolarPanel extends Action<MyJavaAI> {
        return res ? TaskState.SUCCEEDED : TaskState.FAILED;
    }
 
-
-    @Override
-    public String toString() {
-        return "";
-    }
-
     @Override
     public void eval(EvolutionState evolutionState, int i, GPData gpData, ADFStack adfStack, GPIndividual gpIndividual, Problem problem) {
 
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.res = (null);
     }
 }

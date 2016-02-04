@@ -12,8 +12,4 @@ public class AvailMetalSpot extends Condition<MyJavaAI> {
         return true;// TODO !getBlackboard().metalDetectors.isEmpty();
     }
 
-    @Override
-    public String toString() {
-        return null;
-    }
 }

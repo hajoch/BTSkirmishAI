@@ -27,9 +27,4 @@ public class NeedStorage extends Condition<MyJavaAI> {
         return full && increasing;
     }
 
-    @Override
-    public String toString() {
-        return null;
-    }
-
 }

@@ -95,12 +95,6 @@ public class Build_MEX extends Action<MyJavaAI> {
         //TODO handle death. How should the behaviour tree handle this?
     }
 
-
-    @Override
-    public String toString() {
-        return "";
-    }
-
     @Override
     public void eval(EvolutionState evolutionState, int i, GPData gpData, ADFStack adfStack, GPIndividual gpIndividual, Problem problem) {
 
